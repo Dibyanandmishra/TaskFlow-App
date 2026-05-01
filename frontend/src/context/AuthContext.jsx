@@ -12,12 +12,11 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          // Verify token if backend has an endpoint, or just set user based on token presence
-          // Assuming backend has a /users/me or similar, or we just decode token.
-          // For simplicity, we just set authenticated to true if token exists and let protected routes handle 401
-          setUser({ token });
+          const response = await api.get('/auth/me');
+          setUser({ ...response.data.data.user, token });
         } catch (error) {
           localStorage.removeItem('token');
+          setUser(null);
         }
       }
       setLoading(false);

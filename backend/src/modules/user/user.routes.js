@@ -5,16 +5,14 @@ const { authenticate, authorize } = require('../../middleware/auth');
 const validate = require('../../middleware/validate');
 const { userQuerySchema, userIdParamSchema, updateRoleSchema, toggleStatusSchema } = require('./user.validation');
 
-router.use(authenticate, authorize('admin'));
-
-router.get('/', validate(userQuerySchema, 'query'), userController.listUsers);
+router.get('/', authenticate, authorize('admin'), validate(userQuerySchema, 'query'), userController.listUsers);
 
 router
   .route('/:id')
-  .all(validate(userIdParamSchema, 'params'))
+  .all(authenticate, authorize('admin'), validate(userIdParamSchema, 'params'))
   .get(userController.getUser);
 
-router.patch('/:id/role', validate(userIdParamSchema, 'params'), validate(updateRoleSchema), userController.updateUserRole);
-router.patch('/:id/status', validate(userIdParamSchema, 'params'), validate(toggleStatusSchema), userController.toggleUserStatus);
+router.patch('/:id/role', authenticate, authorize('admin'), validate(userIdParamSchema, 'params'), validate(updateRoleSchema), userController.updateUserRole);
+router.patch('/:id/status', authenticate, authorize('admin'), validate(userIdParamSchema, 'params'), validate(toggleStatusSchema), userController.toggleUserStatus);
 
 module.exports = router;

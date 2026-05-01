@@ -10,16 +10,10 @@ const validate = (schema, property = 'body') => {
     });
 
     if (error) {
-      const details = error.details.map((d) => ({
-        field: d.path.join('.'),
-        message: d.message,
-      }));
-
       const err = new AppError('Validation failed', 422, 'VALIDATION_ERROR');
-      err.details = details;
+      err.details = error.details;
       // Attach Joi flag for error handler
       err.isJoi = true;
-      err.details_raw = error.details;
       return next(err);
     }
 

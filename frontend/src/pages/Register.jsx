@@ -18,11 +18,17 @@ const Register = () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await api.post('/users/register', { name, email, password });
-      login(response.data.data.token);
+      const response = await api.post('/auth/register', { name, email, password });
+      const { accessToken } = response.data.data.tokens;
+      login(accessToken);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const responseData = err.response?.data;
+      if (responseData?.errors && Array.isArray(responseData.errors)) {
+        setError(responseData.errors.map(e => e.message).join('. '));
+      } else {
+        setError(responseData?.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

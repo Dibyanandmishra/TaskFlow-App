@@ -48,13 +48,13 @@ const errorHandler = (err, req, res, _next) => {
   }
 
   // Joi validation error
-  if (err.isJoi) {
+  if (err.isJoi && Array.isArray(err.details)) {
     statusCode = 422;
     errorCode = 'VALIDATION_ERROR';
     message = 'Validation failed';
     errors = err.details.map((d) => ({
-      field: d.path.join('.'),
-      message: d.message.replace(/"/g, ''),
+      field: Array.isArray(d.path) ? d.path.join('.') : d.field || 'unknown',
+      message: d.message ? d.message.replace(/"/g, '') : 'Validation error',
     }));
   }
 

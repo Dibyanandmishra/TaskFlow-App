@@ -17,11 +17,17 @@ const Login = () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await api.post('/users/login', { email, password });
-      login(response.data.data.token);
+      const response = await api.post('/auth/login', { email, password });
+      const { accessToken } = response.data.data.tokens;
+      login(accessToken);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      const responseData = err.response?.data;
+      if (responseData?.errors && Array.isArray(responseData.errors)) {
+        setError(responseData.errors.map(e => e.message).join('. '));
+      } else {
+        setError(responseData?.message || 'Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -15,7 +15,15 @@ const Navbar = () => {
           <CheckSquare className="w-6 h-6 text-[var(--color-primary)]" />
           <span className="font-bold text-xl tracking-tight">TaskFlow</span>
         </Link>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
+          <div className="hidden md:flex flex-col items-end">
+            <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+              {user.name}
+            </span>
+            <span className="text-xs text-[var(--color-text-secondary)]">
+              {user.role === 'admin' ? 'Administrator' : 'User'}
+            </span>
+          </div>
           <button
             onClick={logout}
             className="flex items-center space-x-2 px-3 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-all-custom focus-ring"

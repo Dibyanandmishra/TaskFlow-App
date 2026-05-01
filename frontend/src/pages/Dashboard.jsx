@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Plus, ListTodo, Loader2 } from 'lucide-react';
+import { Plus, ListTodo, Loader2, CheckCircle2, Clock, BarChart3, Search, Filter } from 'lucide-react';
 import api from '../services/api';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
@@ -13,13 +13,20 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [stats, setStats] = useState({ total: 0, pending: 0, in_progress: 0, completed: 0 });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState('');
 
   const fetchTasks = async () => {
     setIsLoadingTasks(true);
     try {
-      const response = await api.get('/tasks');
-      setTasks(response.data.data || []);
+      const params = {};
+      if (statusFilter !== 'all') params.status = statusFilter;
+      if (searchQuery) params.search = searchQuery;
+      
+      const response = await api.get('/tasks', { params });
+      setTasks(response.data.data.tasks || []);
       setError('');
     } catch (err) {
       setError('Failed to load tasks. Please try again.');
@@ -28,11 +35,21 @@ const Dashboard = () => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const response = await api.get('/tasks/stats');
+      setStats(response.data.data.stats || { total: 0, pending: 0, in_progress: 0, completed: 0 });
+    } catch (err) {
+      console.error('Failed to fetch stats');
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchTasks();
+      fetchStats();
     }
-  }, [user]);
+  }, [user, statusFilter, searchQuery]);
 
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
@@ -40,7 +57,7 @@ const Dashboard = () => {
   const handleCreateOrUpdateTask = async (taskData) => {
     try {
       if (editingTask) {
-        await api.put(`/tasks/${editingTask._id}`, taskData);
+        await api.patch(`/tasks/${editingTask._id}`, taskData);
       } else {
         await api.post('/tasks', taskData);
       }
@@ -54,7 +71,7 @@ const Dashboard = () => {
 
   const handleStatusChange = async (taskId, status) => {
     try {
-      await api.patch(`/tasks/${taskId}/status`, { status });
+      await api.patch(`/tasks/${taskId}`, { status });
       fetchTasks();
     } catch (err) {
       alert('Failed to update status');
@@ -97,6 +114,64 @@ const Dashboard = () => {
             <Plus className="w-5 h-5" />
             <span>New Task</span>
           </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="bg-[var(--color-card)] p-5 rounded-2xl border border-[var(--color-border)] shadow-sm flex items-center space-x-4">
+            <div className="bg-blue-500/10 p-3 rounded-xl">
+              <BarChart3 className="w-6 h-6 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">Total Tasks</p>
+              <p className="text-2xl font-bold text-[var(--color-text-primary)]">{stats.total}</p>
+            </div>
+          </div>
+          <div className="bg-[var(--color-card)] p-5 rounded-2xl border border-[var(--color-border)] shadow-sm flex items-center space-x-4">
+            <div className="bg-amber-500/10 p-3 rounded-xl">
+              <Clock className="w-6 h-6 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">Pending</p>
+              <p className="text-2xl font-bold text-[var(--color-text-primary)]">{stats.pending + stats.in_progress}</p>
+            </div>
+          </div>
+          <div className="bg-[var(--color-card)] p-5 rounded-2xl border border-[var(--color-border)] shadow-sm flex items-center space-x-4">
+            <div className="bg-emerald-500/10 p-3 rounded-xl">
+              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">Completed</p>
+              <p className="text-2xl font-bold text-[var(--color-text-primary)]">{stats.completed}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-secondary)]" />
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl focus-ring text-[var(--color-text-primary)] transition-all-custom"
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="pl-9 pr-8 py-2.5 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl focus-ring text-[var(--color-text-primary)] transition-all-custom appearance-none min-w-[140px]"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {error && (
