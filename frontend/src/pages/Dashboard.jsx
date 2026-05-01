@@ -77,8 +77,7 @@ const Dashboard = () => {
     }
   }, [user, statusFilter, priorityFilter, sortBy, searchQuery]);
 
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (loading || !user) return null;
 
   const handleCreateOrUpdateTask = async (taskData) => {
     try {

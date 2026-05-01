@@ -29,8 +29,8 @@ const AdminDashboard = () => {
     }
   }, [user]);
 
-  if (loading) return null;
-  if (!user || user.role !== 'admin') return <Navigate to="/" replace />;
+  if (loading || !user) return null;
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
 
   const handleUpdateRole = async (userId, newRole) => {
     try {

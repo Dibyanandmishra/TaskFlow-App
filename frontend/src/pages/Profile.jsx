@@ -27,7 +27,7 @@ const Profile = () => {
     }
   }, [user]);
 
-  if (loading) return null;
+  if (loading || !user) return null;
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
