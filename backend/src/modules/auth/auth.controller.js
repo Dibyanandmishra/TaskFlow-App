@@ -1,36 +1,47 @@
-const authService = require("./auth.service");
+const authService = require('./auth.service');
+const catchAsync = require('../../utils/catchAsync');
+const { sendSuccess } = require('../../utils/apiResponse');
 
-// Register
-const register = async (req, res, next) => {
-  try {
-    const result = await authService.registerUser(req.body);
+const register = catchAsync(async (req, res) => {
+  const result = await authService.register(req.body);
 
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      data: result,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  sendSuccess(res, {
+    statusCode: 201,
+    message: 'User registered successfully',
+    data: result,
+  });
+});
 
-// Login
-const login = async (req, res, next) => {
-  try {
-    const result = await authService.loginUser(req.body);
 
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      data: result,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+const login = catchAsync(async (req, res) => {
+  const result = await authService.login(req.body);
 
-module.exports = {
-  register,
-  login,
-};
+  sendSuccess(res, {
+    statusCode: 200,
+    message: 'Login successful',
+    data: result,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res) => {
+  const result = await authService.refreshAccessToken(req.body.refreshToken);
+
+  sendSuccess(res, {
+    statusCode: 200,
+    message: 'Token refreshed successfully',
+    data: result,
+  });
+});
+
+
+const getMe = catchAsync(async (req, res) => {
+  const user = await authService.getProfile(req.user.id);
+
+  sendSuccess(res, {
+    statusCode: 200,
+    message: 'Profile retrieved successfully',
+    data: { user },
+  });
+});
+
+module.exports = { register, login, refreshToken, getMe };
