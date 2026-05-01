@@ -59,11 +59,19 @@ const Dashboard = () => {
       if (editingTask) {
         await api.patch(`/tasks/${editingTask._id}`, taskData);
       } else {
-        await api.post('/tasks', taskData);
+        // Check for duplicate title
+        const existingTask = tasks.find(t => t.title.toLowerCase() === taskData.title.toLowerCase());
+        if (existingTask) {
+          await api.patch(`/tasks/${existingTask._id}`, taskData);
+          alert('Task already exist! Task update');
+        } else {
+          await api.post('/tasks', taskData);
+        }
       }
       setIsModalOpen(false);
       setEditingTask(null);
       fetchTasks();
+      fetchStats();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to save task');
     }

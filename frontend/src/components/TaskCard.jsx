@@ -1,18 +1,30 @@
-import React from 'react';
-import { Trash2, CheckCircle, Circle, Edit } from 'lucide-react';
+import { Trash2, CheckCircle, Circle, Edit, CircleDashed } from 'lucide-react';
 
 const TaskCard = ({ task, onStatusChange, onDelete, onEdit }) => {
   const isCompleted = task.status === 'completed';
+  const isInProgress = task.status === 'in_progress';
+
+  const getNextStatus = () => {
+    if (task.status === 'pending') return 'in_progress';
+    if (task.status === 'in_progress') return 'completed';
+    return 'pending';
+  };
+
+  const getStatusIcon = () => {
+    if (isCompleted) return <CheckCircle className="w-5 h-5 text-[var(--color-success)]" />;
+    if (isInProgress) return <CircleDashed className="w-5 h-5 text-amber-500 animate-spin-slow" />;
+    return <Circle className="w-5 h-5" />;
+  };
 
   return (
-    <div className={`bg-[var(--color-card)] rounded-xl border p-5 shadow-sm hover:shadow-md transition-all-custom flex flex-col h-full ${isCompleted ? 'border-[var(--color-success)]/30 opacity-75' : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50'}`}>
+    <div className={`bg-[var(--color-card)] rounded-xl border p-5 shadow-sm hover:shadow-md transition-all-custom flex flex-col h-full ${isCompleted ? 'border-[var(--color-success)]/30 opacity-75' : isInProgress ? 'border-amber-500/30' : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50'}`}>
       <div className="flex items-start gap-3">
         <button
-          onClick={() => onStatusChange(task._id, isCompleted ? 'pending' : 'completed')}
-          className={`mt-0.5 flex-shrink-0 focus-ring rounded-full ${isCompleted ? 'text-[var(--color-success)]' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]'} transition-all-custom`}
-          aria-label={isCompleted ? "Mark as pending" : "Mark as completed"}
+          onClick={() => onStatusChange(task._id, getNextStatus())}
+          className={`mt-0.5 flex-shrink-0 focus-ring rounded-full ${isCompleted ? 'text-[var(--color-success)]' : isInProgress ? 'text-amber-500' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]'} transition-all-custom`}
+          aria-label="Change status"
         >
-          {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+          {getStatusIcon()}
         </button>
         
         <div className="flex-1 min-w-0">
@@ -47,9 +59,11 @@ const TaskCard = ({ task, onStatusChange, onDelete, onEdit }) => {
       <div className="mt-auto pt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--color-border)]/50">
         <div className="flex items-center gap-2">
           <span className={`text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold ${
-            isCompleted ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]' : 'bg-yellow-500/10 text-yellow-500'
+            isCompleted ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]' : 
+            isInProgress ? 'bg-amber-500/10 text-amber-500' :
+            'bg-yellow-500/10 text-yellow-500'
           }`}>
-            {isCompleted ? 'Completed' : 'Pending'}
+            {task.status === 'completed' ? 'Completed' : task.status === 'in_progress' ? 'In Progress' : 'Pending'}
           </span>
           <span className={`text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold ${
             task.priority === 'high' ? 'bg-[var(--color-error)]/10 text-[var(--color-error)]' :

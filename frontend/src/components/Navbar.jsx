@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LogOut, CheckSquare } from 'lucide-react';
+import { LogOut, CheckSquare, Shield } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -16,6 +16,15 @@ const Navbar = () => {
           <span className="font-bold text-xl tracking-tight">TaskFlow</span>
         </Link>
         <div className="flex items-center space-x-6">
+          {user.role === 'admin' && (
+            <Link 
+              to="/admin" 
+              className="flex items-center space-x-2 px-3 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 rounded-lg transition-all-custom focus-ring"
+            >
+              <Shield className="w-5 h-5" />
+              <span className="text-sm font-medium hidden sm:inline">Admin</span>
+            </Link>
+          )}
           <div className="hidden md:flex flex-col items-end">
             <span className="text-sm font-semibold text-[var(--color-text-primary)]">
               {user.name}
