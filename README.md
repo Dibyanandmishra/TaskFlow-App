@@ -1,62 +1,148 @@
-# TaskFlow API
+# TaskFlow App
 
-Production-grade REST API with JWT Authentication and Role-Based Access Control (RBAC).
+Production-grade REST API with **JWT Authentication** and **Role-Based Access Control (RBAC)**.
 
-Built with **Node.js**, **Express 5**, **MongoDB/Mongoose**, and designed following clean architecture principles.
+Built using **Node.js**, **Express 5**, and **MongoDB**, following clean architecture and scalable backend design principles.
 
 ---
+
+## 📌 Overview
+
+TaskFlow API is a secure and scalable backend system designed to manage tasks with proper authentication and authorization.
+
+It demonstrates:
+- Clean modular backend architecture
+- Secure authentication & authorization
+- Real-world API design practices
+- Scalability-ready system design
+
+---
+
+---
+
+## 🚀 Assignment Completion Checklist
+
+This project fulfills all requirements for the **Backend Developer (Intern)** assignment at **Primetrade.ai**:
+
+### ✅ Backend (Primary Focus)
+- [x] **Auth:** Registration & Login with `bcrypt` hashing and JWT (Access + Refresh tokens).
+- [x] **RBAC:** Role-based access control (`user` vs `admin`) with authorization middleware.
+- [x] **CRUD:** Full task management (Create, Read, Update, Delete).
+- [x] **Standards:** API Versioning (`/v1`), structured error handling, and `Joi` validation.
+- [x] **Docs:** Integrated Swagger UI documentation.
+- [x] **Database:** Modular MongoDB schema design with Mongoose.
+
+### ✅ Frontend (Supportive UI)
+- [x] **Tech:** React.js (Vite) with Tailwind CSS.
+- [x] **Auth UI:** Functional Login/Register pages.
+- [x] **Dashboard:** Protected route dashboard with real-time API connection.
+- [x] **Interactions:** Perform CRUD on tasks and view live statistics.
+- [x] **UX:** Show/Hide password toggles, loading states, and error alerts.
+
+### ✅ Security & Scalability
+- [x] **Token Security:** Dual token system (Access/Refresh) with Axios interceptors.
+- [x] **Sanitization:** Protection against NoSQL Injection and XSS (Helmet, Sanitizer).
+- [x] **Structure:** Modular architecture ready for microservices migration.
+- [x] **Docker:** Containerized setup for seamless deployment.
+
+---
+
+## 📈 Scalability & Future Architecture Note
+
+To ensure TaskFlow can handle millions of users and high concurrent loads, the following architectural improvements are planned:
+
+### 1. Horizontal Scaling & Microservices
+Currently, the app follows a **Modular Monolith** structure. This is designed to be easily split into microservices:
+- **Auth Service:** Dedicated to token management and identity.
+- **Task Service:** Dedicated to task logic and data.
+- **User Service:** Managing profile and administrative metadata.
+
+### 2. Performance Optimization (Caching)
+- **Redis Integration:** Implement caching for frequently accessed data like `Task Statistics` and `User Profiles` to reduce database load.
+- **Read Replicas:** Use MongoDB read replicas to distribute heavy query loads.
+
+### 3. High Availability & Load Balancing
+- **Nginx/HAProxy:** Use a reverse proxy to distribute traffic across multiple Node.js instances.
+- **Stateless Auth:** Since JWT is used, the backend is naturally stateless, allowing it to scale horizontally without session synchronization issues.
+
+### 4. Real-time Features
+- **WebSockets:** Implement `Socket.io` for real-time task updates across multiple users in the same project/organization.
+
+---
+
 
 ## Architecture
 
-```
+```bash
 backend/
-├── server.js                    # Entry point — DB connect, graceful shutdown
-├── Dockerfile                   # Multi-stage production image
-├── docker-compose.yml           # API + MongoDB orchestration
-├── .env.example                 # Environment variable template
+├── server.js                    # Entry point — DB connect, server start
+├── Dockerfile                   # Production container
+├── docker-compose.yml           # Multi-container setup
+├── .env.example                 # Env template
 └── src/
-    ├── app.js                   # Express app — middleware, routes, error handling
+    ├── app.js                   # Express app setup
     ├── config/
-    │   ├── index.js             # Centralized config with env validation
-    │   └── db.js                # MongoDB connection with retry logic
+    │   ├── index.js             # Env + config
+    │   └── db.js                # MongoDB connection
     ├── middleware/
-    │   ├── auth.js              # JWT authentication + role authorization
-    │   ├── errorHandler.js      # Centralized error handling
-    │   ├── notFound.js          # 404 catch-all
-    │   ├── rateLimiter.js       # Global + auth-specific rate limiting
-    │   └── validate.js          # Joi validation middleware factory
+    │   ├── auth.js
+    │   ├── errorHandler.js
+    │   ├── notFound.js
+    │   ├── rateLimiter.js
+    │   ├── sanitize.js
+    │   └── validate.js
     ├── modules/
     │   ├── auth/
-    │   │   ├── auth.controller.js
-    │   │   ├── auth.routes.js
-    │   │   ├── auth.service.js
-    │   │   └── auth.validation.js
     │   ├── task/
-    │   │   ├── task.controller.js
-    │   │   ├── task.model.js
-    │   │   ├── task.routes.js
-    │   │   ├── task.service.js
-    │   │   └── task.validation.js
     │   └── user/
-    │       ├── user.controller.js
-    │       ├── user.model.js
-    │       ├── user.routes.js
-    │       ├── user.service.js
-    │       └── user.validation.js
     ├── utils/
-    │   ├── AppError.js          # Operational error class
-    │   ├── apiResponse.js       # Standardized response helpers
-    │   ├── catchAsync.js        # Async error wrapper
-    │   ├── generateToken.js     # JWT access + refresh token generation
-    │   ├── logger.js            # Structured logger
-    │   └── paginate.js          # Pagination utility
+    │   ├── AppError.js
+    │   ├── apiResponse.js
+    │   ├── catchAsync.js
+    │   ├── generateToken.js
+    │   ├── logger.js
+    │   └── paginate.js
     ├── docs/
-    │   └── swagger.js           # OpenAPI 3.0 specification
+    │   └── swagger.js
     └── scripts/
-        └── seed.js              # Database seeding script
+        └── seed.js
+
+---
 ```
 
 ---
+
+## Tech Stack
+
+| Category       | Technology |
+|----------------|-----------|
+| Runtime       | Node.js |
+| Framework     | Express 5 |
+| Database      | MongoDB + Mongoose |
+| Auth          | JWT + bcrypt |
+| Validation    | Joi |
+| Docs          | Swagger (OpenAPI) |
+| Deployment    | Docker |
+
+---
+
+## Environment Variables Setup(./env)
+
+```bash
+PORT=5000
+MONGO_URI=YOUR_MONGODB_URI
+JWT_SECRET=YOUR_SECRET_KEY
+JWT_EXPIRES_IN=1d
+```
+
+## ⚡ Quick Start
+
+### 📋 Prerequisites
+- Node.js >= 18
+- MongoDB (local or Atlas)
+
+---
+
 
 ## Quick Start
 
@@ -208,6 +294,16 @@ After running `npm run seed`:
 
 ---
 
+## 👨‍💻 Author
+
+**Dibyanand Mishra**
+
+## 🌐 Connect with Me
+
+[![GitHub](https://img.shields.io/badge/GitHub-Dibyanandmishra-181717?style=for-the-badge&logo=github)](https://github.com/Dibyanandmishra)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Dibyanand%20Mishra-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/dibya-nand-mishra-84865a301/)
+
 ## License
 
-ISC
+Not Available
