@@ -38,6 +38,15 @@ if (config.env === 'development') {
   app.use(morgan('combined'));
 }
 
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to TaskFlow API 🚀',
+    docs: '/api-docs',
+    health: '/health',
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.status(200).json({
     success: true,
@@ -54,14 +63,12 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/users', userRoutes);
 
-if (config.env !== 'production') {
-  const swaggerUi = require('swagger-ui-express');
-  const swaggerSpec = require('./docs/swagger');
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'TaskFlow API Documentation',
-  }));
-}
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'TaskFlow API Documentation',
+}));
 
 app.use(notFound);
 app.use(errorHandler);
