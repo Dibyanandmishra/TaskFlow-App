@@ -24,13 +24,15 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = (token) => {
-    localStorage.setItem('token', token);
-    setUser({ token });
+  const login = (tokens) => {
+    localStorage.setItem('token', tokens.accessToken);
+    localStorage.setItem('refreshToken', tokens.refreshToken);
+    setUser({ token: tokens.accessToken });
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
   };
 

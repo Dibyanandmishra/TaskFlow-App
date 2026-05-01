@@ -5,6 +5,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
+  const [dueDate, setDueDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -12,10 +13,12 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
       setTitle(initialData.title || '');
       setDescription(initialData.description || '');
       setPriority(initialData.priority || 'medium');
+      setDueDate(initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '');
     } else {
       setTitle('');
       setDescription('');
       setPriority('medium');
+      setDueDate('');
     }
     setIsSubmitting(false);
   }, [initialData, isOpen]);
@@ -26,7 +29,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     e.preventDefault();
     setIsSubmitting(true);
     // Assuming onSubmit handles the API call and closes the modal
-    await onSubmit({ title, description, priority });
+    await onSubmit({ title, description, priority, dueDate: dueDate || null });
     setIsSubmitting(false);
   };
 
@@ -82,6 +85,16 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5" htmlFor="dueDate">Due Date (Optional)</label>
+            <input
+              id="dueDate"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full px-4 py-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus-ring text-[var(--color-text-primary)] transition-all-custom"
+            />
           </div>
           
           <div className="pt-3 flex gap-3">

@@ -25,14 +25,14 @@ const Navbar = () => {
               <span className="text-sm font-medium hidden sm:inline">Admin</span>
             </Link>
           )}
-          <div className="hidden md:flex flex-col items-end">
-            <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+          <Link to="/profile" className="hidden md:flex flex-col items-end hover:opacity-80 transition-opacity px-2 py-1 rounded-lg hover:bg-[var(--color-card)] group">
+            <span className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)] transition-colors">
               {user.name}
             </span>
             <span className="text-xs text-[var(--color-text-secondary)]">
               {user.role === 'admin' ? 'Administrator' : 'User'}
             </span>
-          </div>
+          </Link>
           <button
             onClick={logout}
             className="flex items-center space-x-2 px-3 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-all-custom focus-ring"

@@ -53,7 +53,7 @@ const errorHandler = (err, req, res, _next) => {
     errorCode = 'VALIDATION_ERROR';
     message = 'Validation failed';
     errors = err.details.map((d) => ({
-      field: Array.isArray(d.path) ? d.path.join('.') : d.field || 'unknown',
+      field: d.path && Array.isArray(d.path) ? d.path.join('.') : d.field || 'unknown',
       message: d.message ? d.message.replace(/"/g, '') : 'Validation error',
     }));
   }

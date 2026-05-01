@@ -13,5 +13,7 @@ router.post('/refresh-token', validate(refreshTokenSchema), authController.refre
 
 // Protected routes
 router.get('/me', authenticate, authController.getMe);
+router.patch('/profile', authenticate, authController.updateProfile);
+router.patch('/change-password', authenticate, authController.changePassword);
 
 module.exports = router;

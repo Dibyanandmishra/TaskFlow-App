@@ -16,23 +16,48 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ total: 0, pending: 0, in_progress: 0, completed: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('createdAt:desc');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchTasks = async () => {
-    setIsLoadingTasks(true);
+  const fetchTasks = async (pageNum = 1, append = false) => {
+    setIsLoadingTasks(pageNum === 1);
     try {
-      const params = {};
+      const params = { page: pageNum, limit: 9 };
       if (statusFilter !== 'all') params.status = statusFilter;
+      if (priorityFilter !== 'all') params.priority = priorityFilter;
+      if (sortBy) {
+        const [field, order] = sortBy.split(':');
+        params.sortBy = field;
+        params.sortOrder = order;
+      }
       if (searchQuery) params.search = searchQuery;
       
       const response = await api.get('/tasks', { params });
-      setTasks(response.data.data.tasks || []);
+      const newTasks = response.data.data.tasks || [];
+      const total = response.data.meta?.total || 0;
+      
+      if (append) {
+        setTasks(prev => [...prev, ...newTasks]);
+      } else {
+        setTasks(newTasks);
+      }
+      
+      setHasMore(append ? tasks.length + newTasks.length < total : newTasks.length < total);
       setError('');
     } catch (err) {
       setError('Failed to load tasks. Please try again.');
     } finally {
       setIsLoadingTasks(false);
     }
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchTasks(nextPage, true);
   };
 
   const fetchStats = async () => {
@@ -46,10 +71,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
-      fetchTasks();
+      setPage(1);
+      fetchTasks(1, false);
       fetchStats();
     }
-  }, [user, statusFilter, searchQuery]);
+  }, [user, statusFilter, priorityFilter, sortBy, searchQuery]);
 
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
@@ -179,6 +205,32 @@ const Dashboard = () => {
                 <option value="completed">Completed</option>
               </select>
             </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" />
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="pl-9 pr-8 py-2.5 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl focus-ring text-[var(--color-text-primary)] transition-all-custom appearance-none min-w-[140px]"
+              >
+                <option value="all">All Priority</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="pl-4 pr-8 py-2.5 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl focus-ring text-[var(--color-text-primary)] transition-all-custom appearance-none min-w-[160px]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394A3B8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em` }}
+              >
+                <option value="createdAt:desc">Newest First</option>
+                <option value="createdAt:asc">Oldest First</option>
+                <option value="priority:desc">Priority: High to Low</option>
+                <option value="dueDate:asc">Deadline: Soonest</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -224,6 +276,17 @@ const Dashboard = () => {
                 onEdit={openEditModal}
               />
             ))}
+          </div>
+        )}
+
+        {hasMore && !isLoadingTasks && (
+          <div className="mt-12 flex justify-center">
+            <button
+              onClick={loadMore}
+              className="px-8 py-3 bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)] text-[var(--color-text-primary)] rounded-xl font-semibold transition-all-custom shadow-sm hover:shadow-md active:scale-95"
+            >
+              Load More Tasks
+            </button>
           </div>
         )}
       </main>

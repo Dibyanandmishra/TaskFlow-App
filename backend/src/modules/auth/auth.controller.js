@@ -44,4 +44,23 @@ const getMe = catchAsync(async (req, res) => {
   });
 });
 
-module.exports = { register, login, refreshToken, getMe };
+const updateProfile = catchAsync(async (req, res) => {
+  const user = await authService.updateProfile(req.user.id, req.body);
+
+  sendSuccess(res, {
+    statusCode: 200,
+    message: 'Profile updated successfully',
+    data: { user },
+  });
+});
+
+const changePassword = catchAsync(async (req, res) => {
+  await authService.changePassword(req.user.id, req.body.currentPassword, req.body.newPassword);
+
+  sendSuccess(res, {
+    statusCode: 200,
+    message: 'Password changed successfully',
+  });
+});
+
+module.exports = { register, login, refreshToken, getMe, updateProfile, changePassword };

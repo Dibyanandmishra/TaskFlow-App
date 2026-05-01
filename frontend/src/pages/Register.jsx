@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
-import { Loader2, CheckSquare } from 'lucide-react';
+import { Loader2, CheckSquare, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -10,6 +10,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -19,8 +20,8 @@ const Register = () => {
     setError('');
     try {
       const response = await api.post('/auth/register', { name, email, password });
-      const { accessToken } = response.data.data.tokens;
-      login(accessToken);
+      const { tokens } = response.data.data;
+      login(tokens);
       navigate('/');
     } catch (err) {
       const responseData = err.response?.data;
@@ -76,18 +77,25 @@ const Register = () => {
               placeholder="name@example.com"
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5" htmlFor="password">Password</label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus-ring text-[var(--color-text-primary)] transition-all-custom placeholder:text-gray-500"
+              className="w-full px-4 py-2.5 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus-ring text-[var(--color-text-primary)] transition-all-custom placeholder:text-gray-500 pr-11"
               required
               minLength={6}
               placeholder="••••••••"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[34px] p-1.5 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
           <button
             type="submit"

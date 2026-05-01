@@ -1,8 +1,10 @@
-import { Trash2, CheckCircle, Circle, Edit, CircleDashed } from 'lucide-react';
+import { Trash2, CheckCircle, Circle, Edit, CircleDashed, Calendar, AlertCircle } from 'lucide-react';
 
 const TaskCard = ({ task, onStatusChange, onDelete, onEdit }) => {
   const isCompleted = task.status === 'completed';
   const isInProgress = task.status === 'in_progress';
+  
+  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date().setHours(0,0,0,0) && !isCompleted;
 
   const getNextStatus = () => {
     if (task.status === 'pending') return 'in_progress';
@@ -73,9 +75,17 @@ const TaskCard = ({ task, onStatusChange, onDelete, onEdit }) => {
             {task.priority || 'Medium'}
           </span>
         </div>
-        <span className="text-xs font-medium text-[var(--color-text-secondary)]">
-          {new Date(task.createdAt).toLocaleDateString()}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          {task.dueDate && (
+            <div className={`flex items-center space-x-1 text-[10px] font-bold uppercase tracking-wider ${isOverdue ? 'text-[var(--color-error)]' : 'text-[var(--color-text-secondary)]'}`}>
+              {isOverdue ? <AlertCircle className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
+              <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+            </div>
+          )}
+          <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-wider opacity-60">
+            Created: {new Date(task.createdAt).toLocaleDateString()}
+          </span>
+        </div>
       </div>
     </div>
   );
