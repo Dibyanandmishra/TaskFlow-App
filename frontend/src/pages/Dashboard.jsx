@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
   const fetchTasks = async (pageNum = 1, append = false) => {
     setIsLoadingTasks(pageNum === 1);
@@ -33,7 +34,7 @@ const Dashboard = () => {
         params.sortBy = field;
         params.sortOrder = order;
       }
-      if (searchQuery) params.search = searchQuery;
+      if (debouncedSearchQuery) params.search = debouncedSearchQuery;
       
       const response = await api.get('/tasks', { params });
       const newTasks = response.data.data.tasks || [];
@@ -70,12 +71,19 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
     if (user) {
       setPage(1);
       fetchTasks(1, false);
       fetchStats();
     }
-  }, [user, statusFilter, priorityFilter, sortBy, searchQuery]);
+  }, [user, statusFilter, priorityFilter, sortBy, debouncedSearchQuery]);
 
   if (loading || !user) return null;
 
